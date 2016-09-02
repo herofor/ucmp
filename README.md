@@ -1,0 +1,1 @@
+# boco ucmp properties repository
