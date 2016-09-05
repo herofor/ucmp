@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <ROOT>
 	<forward>
-		<Element name="sender.smsDB" value="npmdb" />
+		<Element>1</Element>
 	</forward>
 </ROOT>
