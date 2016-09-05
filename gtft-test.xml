@@ -1,9 +1,6 @@
-<?xml version="1.0" encoding="GBK"?>
+<?xml version="1.0"?>
 <ROOT>
 	<forward>
-		<Element name="forwardConditon" value="EOMS_newAlarm" />
-		<Element name="connectionName" value="nmosdb" />
-		<Element name="enumMapSQL" value="select TYPE,ID,TXT from tia_alarm_dict where VALID=1" />
 		<Element name="sender.smsDB" value="npmdb" />
 	</forward>
 </ROOT>
