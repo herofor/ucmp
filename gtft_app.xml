@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="GBK"?>
+<ROOT>
+	<!-- 无线规则相关 -->
+	<ticketfwd>
+		<!-- 原ticketfwd.xml中的全部内容即无线规则属性配置表 -->
+		<!--tfp_ex_ticketfwd表字段对应名称 name="表中名称" type="程序中名称"-->
+		<!--AlarmFilter的mapCounter中，只会存在在配置文件中定制的字段-->
+		
+		<!--延迟时间:秒-->
+		<Element name="delayseconds" type="delaytime" />
+		<!--派单时间段:'08:00:00~12:00:00,13:30:00~18:00:00'-->
+		<Element name="timeperiod" type="timeperiod" />
+		<!--派单时间段:'2010-03-10~9999-12-31,2010-03-12~2010-06-11'-->
+		<Element name="dayperiod" type="dayperiod" />
+		<!--不派单时间段:'2008-10-01 00:00:00~2008-10-01 23:59:59,2008-10-02 00:00:00~2008-10-02 23:59:59'-->
+		<Element name="holidays" type="holidays" />
+		<!--预处理标识-->
+		<Element name="dispatchPre" type="dispatchPre" />
+		<!--关联性标识-->
+		<Element name="dispatchPack" type="dispatchPack" />
+		<!--判重字段-->
+		<Element name="dupAlarmExpression" type="dupAlarmExpression" />
+		<!--判重时间间隔-->
+		<Element name="dupInterval" type="dupInterval" />
+		<!--优先级-->
+		<Element name="priority" type="priority" />
+		<!--过滤器类型-->
+		<Element name="filterIdType" type="filterIdType" />
+		<!--与防火墙相关的过滤器filter_id-->
+		<Element name="firewallFilterId" type="firewallFilterId" />
+		<!--EOMS版本:eoms_ver=2为2.0版本，eoms_ver=3为3.0版-->
+		<Element name="eoms_ver" type="eoms_ver" />
+		
+		<Element name="related" type="related" /> 
+		<!-- 短信分组标签 -->
+		<Element name="sms_group" type="sms_group" />
+		<!-- 工单创建类型 -->
+		<Element name="createType" type="createType" />
+		<!-- 工单模板 -->
+		<Element name="template" type="template" />
+		<!--发送信息公告标识  -->
+		<Element name="send_system" type="send_system"/>
+		<!--江苏联通添加派单维护人规则id的映射 --> 
+                <Element name="related_maintain_ruleid" type="related_maintain_ruleid"/> 
+                <!--不派单时间段处理--> 
+                <Element name="nonForwardProcess" type="nonFrowardProcess" />
+                <!-- 工程告警抑制标识 1抑制 0 不抑制 -->
+                <Element name="restrain_projectalarm" type="restrain_projectalarm"/>
+                <!-- 允许采用花名册方式设置时延 -->
+		<Element name="directsendflag" type="directsendflag" />
+		<Element name="directsendfield" type="directsendfield" />
+		<Element name="alarmType" type="alarmType" />
+		<Element name="switch" type="switch" />
+
+	</ticketfwd>
+	<handle2419>
+		<atr name="sql"  value="select 'network_type' col_name, id, txt from tia_alarm_dict
+		where type = 1037
+		and valid = 1
+		union
+		select 'network_type_top' col_name, id, txt
+		from tia_alarm_dict
+		where type = 1317
+		and valid = 1
+		union
+		select distinct 'region_id' col_name, region_id id, region_name txt
+		from region_city_local"/>
+	</handle2419> 	
+
+	<!-- 调度业务相关 -->
+	<schedule>
+		<!-- 默认抑制状态  0.派单	1.抑制	2.打包	3.合并（注意：配置成打包的时候需要EOMS服务端接口支持） -->
+		<Element name="eoms.restrainflage" value="2" />
+		<Element name="sms.restrainflage" value="2" />
+		<Element name="ivr.restrainflage" value="1" />
+		<!-- 是否开启判重追单 -->
+		<Element name="dup_chaseSheet" value="false" />
+		<!-- 是否开启关联追单 -->
+		<Element name="related_chaseSheet" value="true" />
+	</schedule>
+	
+	<!-- 派单相关 -->
+	<forward>
+		<!-- 默认前传方式 -->
+		<Element name="forwardConditon" value="EOMS_newAlarm" />
+		<!-- db数据库 -->
+		<Element name="connectionName" value="nmosdb" />
+		<!-- 用来生成worksheet配置 -->
+		<Element name="enumMapSQL" value="select TYPE,ID,TXT from tia_alarm_dict where VALID=1" />
+		<!-- sms短信库名称 -->
+		<Element name="sender.smsDB" value="npmdb" />
+		<!-- sms短信入库sql -->
+		<Element name="sneder.smsInsert" value="insert into sp_submit_test(desttermid, msgcontent, status) values(?, ?, 1)" />
+		<!-- 每次派单间隔时间 -->
+		<Element name="eoms.sendInterval" value="5000" />
+		<!-- 派单次数设置 -->
+		<Element name="eoms.retryTimes" value="1" />
+		<!-- sms1421 短信正文 -->
+		<Element name="1421SmsContent" value="sms_no,event_time,region_name,vendor_name,object_class,ne_label,redefine_type,redefine_severity,title_text,locate_info,probable_cause" />
+		<!-- 清除告警不派单列表,以英文逗号分隔,可取值"EOMS,EOMS2,SMS,IVR,EMAIL,OVSD":[SMS,IVR,EMAIL,OVSD] -->
+		<Element name="CLEAR_NOT_SEND_LIST" value="SMS,IVR,EMAIL,OVSD" />
+		<!-- 工单同步默认设置Sender -->
+		<Element name="userid" value="auto" />
+	</forward>
+	
+	<!-- 通知消息 -->
+	<message>
+		<!-- BOCO_WNMS告警通知消息的alarmId前缀,EOMS走单通知状态时告警id会有该前缀(不要忘记后面的下划线) -->
+		<Element name="ALARMID_PREFIX" value="BOCO_WNMS_" />
+		
+	    <!--是否发送通知消息
+		  	send_status:
+			0:不必派单
+			1:等待派单
+			2:人工中止派单
+			3:系统抑制派单
+			4:派单失败
+		    5:自动派单成功
+			6:手工派单成功
+			7: 补派工单成功
+			8:清除派单失败
+			9:清除派单成功
+		 	-1：任意条件均发送
+		 	false：任意条件此模块均不发送通知消息
+	  	-->
+		<SendMessage>
+		      <forward type="EOMS" enable="true">
+		         <element message="ControlScheduleAdaptor" send="true" send_status="-1" />
+		         <element message="ClearmessageHandler" send="true" send_status="1,2,3,6,7,8,9" />
+		         <element message="AlarmScheduleProcessor" send="true" send_status="-1" />
+		         <element message="CorrelatedAlarmProcessorNew" send="true" send_status="-1" />
+		         <element message="AlarmRestrainProcessor" send="true" send_status="-1" />
+		         <element message="EOMSSender" send="true" send_status="-1" />
+		         <element message="OtherForwardSender" send="true" send_status="-1" />
+		         <element message="AlarmDelayJob" send="true" send_status="-1" />
+		         <element message="FirewallFilterAdapter" send="true" send_status="-1" />
+		         <element message="Alarm1408Processor" send="true" send_status="-1" />
+		         <element message="Alarm1471Processor" send="true" send_status="-1" />
+		         <element message="ClearFilterAdapter" send="true" send_status="-1" />
+		         <element message="DupThread" send="true" send_status="-1" />
+		         <element message="PrjAlarmRestrainFilter" send="true" send_status="-1" />
+		         <element message="WorksheetProcessor" send="true" send_status="-1" />
+		         <element message="Alarm2419Processor" send="true" send_status="-1" />
+		      </forward>
+		      <forward type="IVR" enable="true">
+		         <element message="ControlScheduleAdaptor" send="true" send_status="-1" />
+		         <element message="ClearmessageHandler" send="true" send_status="1,2,3,6,7,8,9" />
+		         <element message="AlarmScheduleProcessor" send="true" send_status="-1" />
+		         <element message="CorrelatedAlarmProcessorNew" send="true" send_status="-1" />
+		         <element message="AlarmRestrainProcessor" send="true" send_status="-1" />
+		         <element message="EOMSSender" send="true" send_status="-1" />
+		         <element message="OtherForwardSender" send="true" send_status="-1" />
+		         <element message="AlarmDelayJob" send="true" send_status="-1" />
+		         <element message="Alarm1408Processor" send="true" send_status="-1" />
+		         <element message="Alarm1471Processor" send="true" send_status="-1" />
+		         <element message="ClearFilterAdapter" send="true" send_status="-1" />
+		         <element message="DupThread" send="true" send_status="-1" />
+		         <element message="PrjAlarmRestrainFilter" send="true" send_status="-1" />
+		      </forward>
+		      <forward type="SMS" enable="true">
+		         <element message="ControlScheduleAdaptor" send="true" send_status="-1" />
+		         <element message="ClearmessageHandler" send="true" send_status="1,2,3,6,7,8,9" />
+		         <element message="CorrelatedAlarmProcessorNew" send="true" send_status="-1" />
+		         <element message="AlarmRestrainProcessor" send="true" send_status="-1" />
+		         <element message="EOMSSender" send="true" send_status="-1" />
+		         <element message="OtherForwardSender" send="true" send_status="-1" />
+		         <element message="AlarmDelayJob" send="true" send_status="-1" />
+		         <element message="Alarm1408Processor" send="true" send_status="-1" />
+		         <element message="ClearFilterAdapter" send="true" send_status="-1" />
+		         <element message="DupThread" send="true" send_status="-1" />
+		      </forward>
+		</SendMessage>		
+	</message>
+
+	<!-- 映射表 -->
+	<mapping>
+		<Element name="professional_type" default="0">
+			<Child name="1" value="WX" />
+			<Child name="2" value="CORE" />
+			<Child name="3" value="SJ" />
+			<Child name="4" value="CS" />
+			<Child name="5" value="DH" />
+			<Child name="6" value="ALL" />
+			<Child name="10" value="WG" />
+		</Element>
+		<!-- 原SheetFixMap.xml中的内容 -->
+		<Element name="alarm_severity" default="0">
+			<Child name="1" value="未定义告警" />
+			<Child name="2" value="警告告警" />
+			<Child name="3" value="一般告警" />
+			<Child name="4" value="重要告警" />
+			<Child name="5" value="严重告警" />
+		</Element>
+	
+		<Element name="sheetStatus" default="0">
+		 <Child name="1" value="1" />
+		        <Child name="2" value="2" />
+		        <Child name="3" value="3" />
+		        <Child name="4" value="4" />
+		        <Child name="5" value="5" />
+		        <Child name="6" value="6" />
+		        <Child name="7" value="7" />
+		        <Child name="8" value="8" />
+		        <Child name="9" value="9" />
+		        <Child name="10" value="10" />
+		        <Child name="12" value="12" />
+		        <Child name="13" value="13" />
+		        <Child name="14" value="14" />
+		        <Child name="31" value="31" />
+		        <Child name="32" value="32" />
+                        <Child name="33" value="33" />
+		</Element>
+	
+		<!--  	下面两项"四川三零派单" 使用-->
+		<Element name="alarmHandleLevel" default="0">
+			<Child name="一级响应" value="1" />
+			<Child name="二级响应" value="2" />
+			<Child name="三级响应" value="3" />
+			<Child name="四级响应" value="4" />
+			<Child name="无" value="5" />
+		</Element>
+		
+		<Element name="region" default="0">
+			<Child name="阿坝" value="2121927841" />
+			<Child name="巴中" value="1599135962" />
+			<Child name="成都" value="-1483444163" />
+			<Child name="达州" value="262587338" />
+			<Child name="德阳" value="-563760653" />
+			<Child name="甘孜" value="-209766533" />
+			<Child name="广安" value="-490573478" />
+			<Child name="广元" value="83526836" />
+			<Child name="乐山" value="-99822084" />
+			<Child name="凉山" value="86073962" />
+			<Child name="眉山" value="-1531793788" />
+			<Child name="绵阳" value="-1205918901" />
+			<Child name="南充" value="1803696094" />
+			<Child name="内江" value="1545006672" />
+			<Child name="攀枝花" value="1021353243" />
+			<Child name="遂宁" value="-68391332" />
+			<Child name="雅安" value="1302447858" />
+			<Child name="宜宾" value="-31011059" />
+			<Child name="自贡" value="-63247033" />
+			<Child name="泸州" value="265856841" />
+		</Element>
+
+		
+		<Element name="omc_id" default="0">
+			<Child name="18004" value="csjk" />
+			<Child name="18014" value="chiyh" />
+			<Child name="18015" value="chiyh" />
+			<Child name="18017" value="chiyh" />
+		</Element>
+
+		<Element name="province" default="0">
+			<Child name="706006321" value="zhjk_ah" />
+			<Child name="-1493196606" value="zhjk_mo" />
+			<Child name="-1139861561" value="zhjk_bj" />
+			<Child name="-1002839260" value="zhjk_fj" />
+			<Child name="1321688157" value="zhjk_gs" />
+			<Child name="-1489894494" value="zhjk_gd" />
+			<Child name="979979892" value="zhjk_gx" />
+			<Child name="185858522" value="zhjk_gz" />
+			<Child name="72791720" value="zhjk_hi" />
+			<Child name="-1128953347" value="zhjk_he" />
+			<Child name="-640755821" value="zhjk_ha" />
+			<Child name="153199949" value="zhjk_hl" />
+			<Child name="58374238" value="zhjk_hb" />
+			<Child name="1711400496" value="zhjk_hn" />
+			<Child name="1821817893" value="zhjk_jl" />
+			<Child name="-662225376" value="zhjk_js" />
+			<Child name="-294706381" value="zhjk_jx" />
+			<Child name="-1947138647" value="zhjk_ln" />
+			<Child name="366691449" value="zhjk_nm" />
+			<Child name="827961572" value="zhjk_nx" />
+			<Child name="-1153529036" value="zhjk_qh" />
+			<Child name="1150126687" value="zhjk_sd" />
+			<Child name="1751711880" value="zhjk_sx" />
+			<Child name="1161128211" value="zhjk_sn" />
+			<Child name="354339340" value="zhjk_sh" />
+			<Child name="1059902420" value="zhjk_sc" />
+			<Child name="-1365356782" value="zhjk_tw" />
+			<Child name="1047933115" value="zhjk_tj" />
+			<Child name="509842836" value="zhjk_xz" />
+			<Child name="-1001843384" value="zhjk_hk" />
+			<Child name="-988740465" value="zhjk_xj" />
+			<Child name="597617993" value="zhjk_yn" />
+			<Child name="-1308712042" value="zhjk_zj" />
+			<Child name="1715320617" value="zhjk_cq" />
+		</Element>
+		
+		<Modle1409>
+	    	<atr type="8" name="dealTimeLimit" value="deal_time_limit" />
+	    	<atr type="8" name="Title" value="sheet_title" />
+	    	<atr type="8" name="operateDept" value="sheet_operate_dept" />
+	    	<atr type="8" name="statusTime" value="sheet_status_time" />
+			<!-- 江苏联通新增 -->
+	    	<atr type="8" name="sheetLabel" value="join_sheet_label"/>
+	    	<atr type="8" name="DealMan" value="eoms_accept_man"/>
+	    	<atr type="8" name="agentMan" value="send_accept_man"/>
+	    	<atr type="8" name="acceptMan" value="send_agent_man"/>
+	    	<atr type="8" name="agentManId" value="master_accept_manid"/>
+	    	<atr type="8" name="acceptManID" value="slave_accept_manid"/>
+	    	<atr type="8" name="smsToUserName" value="send_sms_man"/>
+	    	<atr type="113" name="region_id" value="region_id"/>
+	    	<atr type="113" name="province_id" value="province_id"/>
+	    	<atr type="113" name="professional_type" value="professional_type"/>
+	    </Modle1409>
+	    
+	    <Modle1440>
+		    <atr name="dealTimeLimit" value="deal_time_limit" />
+		    <atr name="sheetTitle" value="title" />
+		    <atr name="sheetCreateTime" value="create_time" />
+		    <atr name="alarmHandleLevel" value="response_level" />
+		    <atr name="NeType" value="ne_type" />
+		    <atr name="alarmLevel" value="alarm_level" />
+		    <atr name="taskName" value="task_name" />
+		    <atr name="region" value="region" />
+		    <atr name="createType" value="send_type" />
+		    <atr name="special_type" value="special_type" />
+	    </Modle1440>
+	</mapping>
+</ROOT>
